@@ -2,6 +2,7 @@ import random
 import math
 import numpy as np
 import time
+from amplpy import AMPL, DataFrame
 
 f = open(r"instancias\cap41.txt", "r")
 resultado = open("resultados.txt", "w")
@@ -175,7 +176,7 @@ for iter in range(0, maxIter):
     if fitness[bestRowAux] > BestFitness:
         fitness[bestRowAux] = BestFitness
         matrixBin[bestRowAux] = BestBinary
-    BestFitnes = np.min(fitness)
+    BestFitness = np.min(fitness)
 
     # Obtengo parametro de diversidad, SI TIENEN MAS DUDAS DE ESTO PUEDEN HABLARME AL CORREO 
     #diversidades, maxDiversidad, PorcentajeExplor, PorcentajeExplot, state = dv.ObtenerDiversidadYEstado(poblacion,maxDiversidad)
@@ -186,13 +187,28 @@ for iter in range(0, maxIter):
     print("iteracion: "+str(iter)+", best fitness: "+str(np.min(fitness))+", tiempo iteracion (s): "+str(timeEjecuted))
     resultado.write("iteracion: "+str(iter)+", best fitness: "+str(np.min(fitness))+", tiempo iteracion (s): "+str(timeEjecuted)+"\n")
 
-print("------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-print("Best fitness: "+str(BestFitnes))
-resultado.write("Best fitness: "+str(BestFitnes)+"\n")
-print("Cantidad de columnas seleccionadas: "+str(sum(BestBinary)))
-resultado.write("Cantidad de columnas seleccionadas: "+str(sum(BestBinary))+"\n")
-print("Best solucion: \n"+str(BestBinary.tolist()))
-resultado.write("Best solucion: \n"+str(BestBinary.tolist())+"\n")
-print("------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+#instancia de ampl
+#REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
+ampl = AMPL()
 
+model_directory = argv[2] if argc == 3 else os.path.join("..", "models")
+    ampl.read(os.path.join(model_directory, "diet/diet.mod"))
 
+    # Assign data to NUTR, n_min and n_max
+    ampl.set_data(df1, "NUTR")
+    # Assign data to FOOD, f_min, f_max and cost
+    ampl.set_data(df2, "FOOD")
+    # Assign data to amt
+    ampl.set_data(df3)
+    # Solve the model
+    ampl.solve()
+
+    # Print out the result
+    print(
+        "Objective function value: {}".format(ampl.get_objective("Total_Cost").value())
+    )
+
+    # Get the values of the variable Buy in a dataframe
+    results = ampl.get_variable("Buy").get_values()
+    # Print
+    print(results)
