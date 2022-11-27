@@ -48,8 +48,10 @@ f.close()
 
 params = {}
 
-params["capacidades"] = cap
+params["num_cust"] = num_cust
+params["num_loc"] = num_loc
 params["costoFac"] = fc
+params["capacidades"] = cap
 params["demanda"] = dem
 params["costoCliente"] = vc
 
@@ -215,7 +217,6 @@ ampl.set_data(df2, "FOOD")
 ampl.set_data(df3)"""
 
 
-
 df_cap = DataFrame("cap")
 df_fc = DataFrame("fc")
 df_dem = DataFrame("dem")
@@ -249,6 +250,6 @@ print(
 )
 
 # Get the values of the variable Buy in a dataframe
-results = ampl.get_variable("Buy").get_values()
+results = ampl.get_variable("y").get_values()
 # Print
 print(results)
