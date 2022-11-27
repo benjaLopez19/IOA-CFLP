@@ -11,7 +11,7 @@ resultado = open("resultados.txt", "w")
 
 #___________________LECTURA____________________________
 
-f = open(r"IOA-CFLP\instancias\cap131.txt", "r")
+f = open(r"instancias\cap131.txt", "r")
 
 line = f.readline() 
 data = line.split()
@@ -203,41 +203,53 @@ print("Resultado final:",str(BestBinary.tolist()))
 print(BestBinary)
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
-ampl = AMPL(Environment(r'D:\Cosas\Download\ampl_mswin64\ampl_mswin64'))
 
-model_directory = argv[2] if len(argv) == 3 else os.path.join("..", "IOA-CFLP-main")
-ampl.read(r"IOA-CFLP\1_CFLP_model.mod")
+ampl = AMPL(Environment(r'D:\ProgramasWindows\ampl_mswin64'))
 
+#model_directory = argv[2] if len(argv) == 3 else os.path.join("..", "IOA-CFLP-main")
+model_directory = os.getcwd()
+ampl.read(r"1_CFLP_model.mod")
 
-"""# Assign data to NUTR, n_min and n_max
-ampl.set_data(df1, "NUTR")
-# Assign data to FOOD, f_min, f_max and cost
-ampl.set_data(df2, "FOOD")
-# Assign data to amt
-ampl.set_data(df3)"""
+"""params["num_cust"] = num_cust
+params["num_loc"] = num_loc
+params["costoFac"] = fc
+params["capacidades"] = cap
+params["demanda"] = dem
+params["costoCliente"] = vc"""
 
+print("Creando DataFrames...")
 
-df_cap = DataFrame("cap")
-df_fc = DataFrame("fc")
-df_dem = DataFrame("dem")
-df_vc = DataFrame("vc")
+"""
+Falta
+1. introducir dataframes (params)
+2. identificar estructura capa y capb
+"""
 
-for i, e in enumerate(cap):
-    df_cap.add_row(i,e)
+df_costoFac = pd.DataFrame(
+        list(params["costoFac"]),
+        columns=["Costo_Facility"],
+    ).set_index("Costo_Facility")
 
-for i, e in enumerate(fc):
-    df_fc.add_row(i,e)
+df_capacidades = pd.DataFrame(
+        list(params["capacidades"]),
+        columns=["Capacity"],
+    ).set_index("Capacity")
 
-for i, e in enumerate(dem):
-    df_dem.add_row(i,e)
+df_demanda = pd.DataFrame(
+        list(params["demanda"]),
+        columns=["Demanda"],
+    ).set_index("Demanda")
 
-for i, e in enumerate(vc):
-    df_vc.add_row(i,e)
+df_costoCliente = pd.DataFrame(
+        list(params["costoCliente"])
+    )
 
-ampl.set_data(cap)
-ampl.set_data(fc)
-ampl.set_data(dem)
-ampl.set_data(vc)
+print("Aplicando set_data...")
+
+ampl.set_data(df_costoFac,"Costo_Facility")
+ampl.set_data(df_capacidades,"Capacity")
+ampl.set_data(df_demanda,"Demanda")
+ampl.set_data(df_costoCliente)
 
 #ampl.set_data(cap, "capacidad")
 
