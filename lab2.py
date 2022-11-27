@@ -2,9 +2,9 @@ import random
 import math
 import numpy as np
 import time
-from amplpy import AMPL, DataFrame
+#from amplpy import AMPL, DataFrame
 
-f = open(r"instancias\cap41.txt", "r")
+f = open(r"IOA-CFLP\instancias\cap41.txt", "r")
 resultado = open("resultados.txt", "w")
 
 line = f.readline() 
@@ -189,6 +189,7 @@ for iter in range(0, maxIter):
 
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
+'''
 ampl = AMPL()
 
 model_directory = argv[2] if argc == 3 else os.path.join("..", "models")
@@ -212,3 +213,4 @@ model_directory = argv[2] if argc == 3 else os.path.join("..", "models")
     results = ampl.get_variable("Buy").get_values()
     # Print
     print(results)
+'''
