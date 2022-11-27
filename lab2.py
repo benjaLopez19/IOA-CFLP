@@ -2,9 +2,9 @@ import random
 import math
 import numpy as np
 import time
-#from amplpy import AMPL, DataFrame
+from amplpy import AMPL, DataFrame
 
-f = open(r"IOA-CFLP\instancias\cap41.txt", "r")
+f = open(r"IOA-CFLP\instancias\cap131.txt", "r")
 resultado = open("resultados.txt", "w")
 
 line = f.readline() 
@@ -61,8 +61,9 @@ def binariza(matrix):
 def repara(vector,cap_min,cap_general):
     for i in range(len(vector)):
         if vector[i] == 0:
-            vector[i] == 1
+            vector[i] = 1
             if cumple(vector,cap_min,cap_general) == 1:
+                
                 return vector
 
 #################################Verificación#####################################
@@ -85,11 +86,11 @@ def obtenerFitness(poblacion,matrix,solutionsRanking,params):
     costo_facilities = params["costoFac"]
 
     matrix = binariza(poblacion)
-    print(matrix.shape[0])
+    #print(matrix)
     for solucion in range(matrix.shape[0]):
+        #print("cumple =",cumple(matrix[solucion],cap_min, cap_facilities))
         if cumple(matrix[solucion],cap_min, cap_facilities) == 0:
             aux = repara(matrix[solucion],cap_min,cap_facilities)
-            print(type(solucion),solucion)
             matrix[solucion] = aux
 
     #Calculamos Fitness
@@ -133,7 +134,7 @@ def iterarSCA(maxIter, t, dimension, poblacion, bestSolutionCon):
 
 dim = len(fc) #dimensiones del problema
 pob = 40      #tamaño de la población
-maxIter = 10
+maxIter = 1000
 
 #inicializo poblacion continua
 poblacion = np.random.uniform(low=-10.0, high=10.0, size=(pob,dim))
