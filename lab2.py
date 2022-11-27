@@ -3,9 +3,11 @@ import math
 import numpy as np
 import time
 from amplpy import AMPL, DataFrame
+resultado = open("resultados.txt", "w")
+
+#___________________LECTURA____________________________
 
 f = open(r"IOA-CFLP\instancias\cap131.txt", "r")
-resultado = open("resultados.txt", "w")
 
 line = f.readline() 
 data = line.split()
@@ -46,6 +48,9 @@ params["capacidades"] = cap
 params["costoFac"] = fc
 params["demanda"] = dem
 params["costoCliente"] = vc
+
+
+#___________________METAHEURÍSTICA____________________________
 
 
 #############################################Binarización##########################
@@ -89,8 +94,8 @@ def obtenerFitness(poblacion,matrix,solutionsRanking,params):
     #print(matrix)
     for solucion in range(matrix.shape[0]):
         #print("cumple =",cumple(matrix[solucion],cap_min, cap_facilities))
-        if cumple(matrix[solucion],cap_min, cap_facilities) == 0:
-            aux = repara(matrix[solucion],cap_min,cap_facilities)
+        if cumple(matrix[solucion],cap_min, cap_facilities) == 0: #se verifica que cumpla con las restricciones
+            aux = repara(matrix[solucion],cap_min,cap_facilities) #si no lo hace, se repara la solución
             matrix[solucion] = aux
 
     #Calculamos Fitness
@@ -103,9 +108,9 @@ def obtenerFitness(poblacion,matrix,solutionsRanking,params):
 
 
 
-#########################################################################Seno coseno
+######################ALGORITMO SENO COSENO########################################
 def iterarSCA(maxIter, t, dimension, poblacion, bestSolutionCon):
-    # nuestro valor de a es constante y es extraido desde paper
+    #Constante sacada de paper
     a = 2
     # calculamos nuestro r1
     r1 = a - (t * (a / maxIter))
@@ -134,7 +139,7 @@ def iterarSCA(maxIter, t, dimension, poblacion, bestSolutionCon):
 
 dim = len(fc) #dimensiones del problema
 pob = 40      #tamaño de la población
-maxIter = 1000
+maxIter = 100
 
 #inicializo poblacion continua
 poblacion = np.random.uniform(low=-10.0, high=10.0, size=(pob,dim))
@@ -188,6 +193,8 @@ for iter in range(0, maxIter):
     print("iteracion: "+str(iter)+", best fitness: "+str(np.min(fitness))+", tiempo iteracion (s): "+str(timeEjecuted))
     resultado.write("iteracion: "+str(iter)+", best fitness: "+str(np.min(fitness))+", tiempo iteracion (s): "+str(timeEjecuted)+"\n")
 
+print("Resultado final:",str(BestBinary.tolist()))
+print(BestBinary)
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
 '''

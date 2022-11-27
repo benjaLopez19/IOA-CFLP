@@ -4,7 +4,8 @@ option solution_round 5;
 
 param cli;
 param loc;
-set facilities = {1 .. loc};
+#set facilities = {1 .. loc};
+param facilities = {1 .. loc};
 param ICap{1 .. loc};
 param FC{1 .. loc};
 param dem{1 .. cli};
