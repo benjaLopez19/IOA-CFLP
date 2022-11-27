@@ -5,6 +5,7 @@ import time
 from amplpy import AMPL, DataFrame, Environment
 from sys import *
 import os
+import pandas as pd
 
 resultado = open("resultados.txt", "w")
 
@@ -142,7 +143,7 @@ def iterarSCA(maxIter, t, dimension, poblacion, bestSolutionCon):
 
 dim = len(fc) #dimensiones del problema
 pob = 40      #tamaño de la población
-maxIter = 100
+maxIter = 10
 
 #inicializo poblacion continua
 poblacion = np.random.uniform(low=-10.0, high=10.0, size=(pob,dim))
@@ -200,10 +201,10 @@ print("Resultado final:",str(BestBinary.tolist()))
 print(BestBinary)
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
-ampl = AMPL(Environment('D:\\ProgramasWindows\\ampl_mswin64'))
+ampl = AMPL(Environment(r'D:\Cosas\Download\ampl_mswin64\ampl_mswin64'))
 
 model_directory = argv[2] if len(argv) == 3 else os.path.join("..", "IOA-CFLP-main")
-ampl.read(os.path.join(model_directory, "1_CFLP_model.mod"))
+ampl.read(r"IOA-CFLP\1_CFLP_model.mod")
 
 
 """# Assign data to NUTR, n_min and n_max
@@ -212,6 +213,8 @@ ampl.set_data(df1, "NUTR")
 ampl.set_data(df2, "FOOD")
 # Assign data to amt
 ampl.set_data(df3)"""
+
+
 
 df_cap = DataFrame("cap")
 df_fc = DataFrame("fc")
