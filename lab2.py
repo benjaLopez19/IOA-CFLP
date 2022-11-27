@@ -2,7 +2,10 @@ import random
 import math
 import numpy as np
 import time
-from amplpy import AMPL, DataFrame
+from amplpy import AMPL, DataFrame, Environment
+from sys import *
+import os
+
 resultado = open("resultados.txt", "w")
 
 #___________________LECTURA____________________________
@@ -197,28 +200,52 @@ print("Resultado final:",str(BestBinary.tolist()))
 print(BestBinary)
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
-'''
-ampl = AMPL()
+ampl = AMPL(Environment('D:\\ProgramasWindows\\ampl_mswin64'))
 
-model_directory = argv[2] if argc == 3 else os.path.join("..", "models")
-    ampl.read(os.path.join(model_directory, "diet/diet.mod"))
+model_directory = argv[2] if len(argv) == 3 else os.path.join("..", "IOA-CFLP-main")
+ampl.read(os.path.join(model_directory, "1_CFLP_model.mod"))
 
-    # Assign data to NUTR, n_min and n_max
-    ampl.set_data(df1, "NUTR")
-    # Assign data to FOOD, f_min, f_max and cost
-    ampl.set_data(df2, "FOOD")
-    # Assign data to amt
-    ampl.set_data(df3)
-    # Solve the model
-    ampl.solve()
 
-    # Print out the result
-    print(
-        "Objective function value: {}".format(ampl.get_objective("Total_Cost").value())
-    )
+"""# Assign data to NUTR, n_min and n_max
+ampl.set_data(df1, "NUTR")
+# Assign data to FOOD, f_min, f_max and cost
+ampl.set_data(df2, "FOOD")
+# Assign data to amt
+ampl.set_data(df3)"""
 
-    # Get the values of the variable Buy in a dataframe
-    results = ampl.get_variable("Buy").get_values()
-    # Print
-    print(results)
-'''
+df_cap = DataFrame("cap")
+df_fc = DataFrame("fc")
+df_dem = DataFrame("dem")
+df_vc = DataFrame("vc")
+
+for i, e in enumerate(cap):
+    df_cap.add_row(i,e)
+
+for i, e in enumerate(fc):
+    df_fc.add_row(i,e)
+
+for i, e in enumerate(dem):
+    df_dem.add_row(i,e)
+
+for i, e in enumerate(vc):
+    df_vc.add_row(i,e)
+
+ampl.set_data(cap)
+ampl.set_data(fc)
+ampl.set_data(dem)
+ampl.set_data(vc)
+
+#ampl.set_data(cap, "capacidad")
+
+# Solve the model
+ampl.solve()
+
+# Print out the result
+print(
+    "Objective function value: {}".format(ampl.get_objective("Total_Cost").value())
+)
+
+# Get the values of the variable Buy in a dataframe
+results = ampl.get_variable("Buy").get_values()
+# Print
+print(results)
