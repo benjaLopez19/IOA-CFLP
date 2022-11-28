@@ -204,7 +204,7 @@ print(BestBinary)
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
 
-ampl = AMPL(Environment(r'D:\ProgramasWindows\ampl_mswin64'))
+ampl = AMPL(Environment(r'C:\Users\vicen\Desktop\10 Semestre\IOA\ampl_mswin64'))
 
 #model_directory = argv[2] if len(argv) == 3 else os.path.join("..", "IOA-CFLP-main")
 model_directory = os.getcwd()
@@ -225,31 +225,42 @@ Falta
 2. identificar estructura capa y capb
 """
 
+
 df_costoFac = pd.DataFrame(
-        list(params["costoFac"]),
-        columns=["Costo_Facility"],
-    ).set_index("Costo_Facility")
+        list(params["costoFac"])
+    )
+adf_costoFac = DataFrame.from_pandas(df_costoFac)
 
 df_capacidades = pd.DataFrame(
-        list(params["capacidades"]),
-        columns=["Capacity"],
-    ).set_index("Capacity")
+        list(params["capacidades"])
+    )
+adf_capacidades = DataFrame.from_pandas(df_capacidades)
 
 df_demanda = pd.DataFrame(
-        list(params["demanda"]),
-        columns=["Demanda"],
-    ).set_index("Demanda")
+        list(params["demanda"])
+    )
+adf_demanda = DataFrame.from_pandas(df_demanda)
 
 df_costoCliente = pd.DataFrame(
         list(params["costoCliente"])
     )
 
-print("Aplicando set_data...")
+adf_costoCliente = DataFrame.from_pandas(df_costoCliente)
 
-ampl.set_data(df_costoFac,"Costo_Facility")
-ampl.set_data(df_capacidades,"Capacity")
-ampl.set_data(df_demanda,"Demanda")
-ampl.set_data(df_costoCliente)
+print("Costo facilities: =======================================================================")
+print(df_costoFac,"\n")
+print("Capacidades de las facilities: ========================================================================")
+print(df_capacidades,"\n")
+print("Demanda de Clientes:=====================================================================================")
+print(df_demanda,"\n")
+print("costo de los Clientes:================================================================================")
+print(df_costoCliente,"\n")
+print("=========================================================================================================")
+
+ampl.setValues(adf_costoFac,"FC")
+ampl.set_data(adf_capacidades,"ICap")
+ampl.set_data(adf_demanda,"dem")
+ampl.set_data(adf_costoCliente,"TC")
 
 #ampl.set_data(cap, "capacidad")
 
