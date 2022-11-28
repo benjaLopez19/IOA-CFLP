@@ -200,7 +200,6 @@ for iter in range(0, maxIter):
     resultado.write("iteracion: "+str(iter)+", best fitness: "+str(np.min(fitness))+", tiempo iteracion (s): "+str(timeEjecuted)+"\n")
 
 print("Resultado final:",str(BestBinary.tolist()))
-print(BestBinary)
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
 
@@ -209,6 +208,52 @@ ampl = AMPL(Environment(r'C:\Users\vicen\Desktop\10 Semestre\IOA\ampl_mswin64'))
 #model_directory = argv[2] if len(argv) == 3 else os.path.join("..", "IOA-CFLP-main")
 model_directory = os.getcwd()
 ampl.read(r"1_CFLP_model.mod")
+
+#creacion del archivo.dat
+
+file = "1_CFLP_data.dat"
+with open(file,'w') as salida:
+    salida.write("param cli := "+str(params["num_cust"])+';'+"\n") #fila de clientes
+    salida.write("param loc := "+str(params["num_loc"])+';'+'\n') #fila de localidades
+
+    salida.write("param facilities := ")
+    for i in range(len(BestBinary)): #fila costo facilities
+        salida.write(" "+str(i+1)+" ")
+        salida.write(str(BestBinary[i]))
+    salida.write(";"+'\n')
+
+    salida.write("param FC := ")
+    for i in range(len(params["costoFac"])): #fila costo facilities
+        salida.write(" "+str(i+1)+" ")
+        salida.write(str(params["costoFac"][i]))
+    salida.write(";"+'\n')
+
+    salida.write("param ICap := ")
+    for i in range(len(params["capacidades"])): #fila capacidades facilities
+        salida.write(" "+str(i+1)+" ")
+        salida.write(str(params["capacidades"][i]))
+    salida.write(";"+'\n')    
+
+    salida.write("param dem := ")
+    for i in range(len(params["demanda"])): #fila demanda clientes
+        salida.write(" "+str(i+1)+" ")
+        salida.write(str(params["demanda"][i]))
+    salida.write(";"+'\n')
+
+    salida.write("param TC :")
+    for i in range(len(params["costoCliente"])): # primera linea con las columnas del 
+        salida.write(" "+str(i+1)+" ")
+    salida.write(":=")    
+    salida.write("\n")
+    for i in range(len(params["costoCliente"])):
+        salida.write(str(i+1)+" ")
+        for j in range(len(params["costoCliente"])):
+            salida.write(str(params["costoCliente"][i][j])+" ")
+        salida.write("\n")
+    salida.write(";")
+    
+
+
 
 """params["num_cust"] = num_cust
 params["num_loc"] = num_loc
@@ -225,43 +270,54 @@ Falta
 2. identificar estructura capa y capb
 """
 
+"""
 
-df_costoFac = pd.DataFrame(
-        list(params["costoFac"]),
-        columns=["FC"]
-    )
-adf_costoFac = DataFrame.from_pandas(df_costoFac)
-print(adf_costoFac)
+df_costoFac = DataFrame("loc","FC")
+for i,e in enumerate(params["costoFac"]):
+    df_costoFac.add_row(i,e)
 
-df_capacidades = pd.DataFrame(
-        list(params["capacidades"]),
-        columns=["ICap"]
-    )
-adf_capacidades = DataFrame.from_pandas(df_capacidades)
-
-df_demanda = pd.DataFrame(
-        list(params["demanda"]),
-        columns=["dem"]
-    )
-
-adf_demanda = DataFrame.from_pandas(df_demanda)
-
-df_costoCliente = pd.DataFrame(
-        list(params["costoCliente"]),
-    )
-
-i=0
-while (i<0):
-    df_new = df_costoCliente.rename(columns={i: 'TF'})
-    i = i + 1
-
-print(df_new)
+print(df_costoFac)
 
 
+df_capacidades  = DataFrame("loc","ICap")
+for i,e in enumerate(params["capacidades"]):
+    df_capacidades.add_row(i,e)
+
+print(df_capacidades)
+
+df_demanda = DataFrame("cli","dem")
+for i,e in enumerate(params["demanda"]):
+    df_demanda.add_row(i,e)
+
+print(df_demanda)
+
+
+index = np.arange(0,len(params["costoCliente"])*len(params["costoCliente"]))
+index = index.tolist()
+
+df_costoCliente = DataFrame("index")
+df_costoCliente.set_column("index",index)
+df_costoCliente.add_column("cli")
+df_costoCliente.add_column("loc")
+df_costoCliente.add_column("TC")
+
+cli = []
+loc = []
+TC = []
+for i in range(len(params["costoCliente"])):
+    for j in range(len(params["costoCliente"])):
+        cli.append(i)
+        loc.append(j)
+        TC.append(params["costoCliente"][i][j])
+
+df_costoCliente.set_column("cli",cli)
+df_costoCliente.set_column("loc",loc)
+df_costoCliente.set_column("TC",TC)
+print(df_costoCliente)
 
 
 
-adf_costoCliente = DataFrame.from_pandas(df_costoCliente)
+
 '''
 print("Costo facilities: =======================================================================")
 print(df_costoFac,"\n")
@@ -273,23 +329,27 @@ print("costo de los Clientes:===================================================
 print(df_costoCliente,"\n")
 print("=========================================================================================================")
 '''
+"""
 
-ampl.set_data(adf_costoFac)
-ampl.set_data(adf_capacidades)
-ampl.set_data(adf_demanda)
-ampl.set_data(adf_costoCliente)
+#ampl.set_data(df_costoFac)
+#ampl.set_data(df_capacidades)
+#ampl.set_data(df_demanda)
+#ampl.set_data(df_costoCliente)
 
 #ampl.set_data(cap, "capacidad")
 
+#pass data to ampl
+ampl.read_data(file)
 # Solve the model
 ampl.solve()
 
+print()
 # Print out the result
 print(
     "Objective function value: {}".format(ampl.get_objective("Total_Cost").value())
 )
 
 # Get the values of the variable Buy in a dataframe
-results = ampl.get_variable("y").get_values()
+#results = ampl.get_variable("y").get_values()
 # Print
-print(results)
+#print(results)

@@ -9,7 +9,7 @@ param facilities{1 .. loc};
 param ICap{1 .. loc};
 param FC{1 .. loc};
 param dem{1 .. cli};
-param TC{1 .. cli, 1 .. loc};
+param TC{1 .. cli,1 .. loc};
 #var x {loc} binary;
 #var x {facilities} >=0, <=1;
 var y {1 .. cli, 1 .. loc} binary;
