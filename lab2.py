@@ -14,31 +14,42 @@ archivo = r"instancias\capa.txt"
 
 f = open(archivo, "r")
 
-print(argv[0])
-
 line = f.readline() 
 data = line.split()
 num_loc = int(data[0]) #numero de locaciones
 num_cust = int(data[1]) #numero de clientes
-loc = list(range(num_loc))
-cust = list(range(num_cust))
+loc = list(range(num_loc)) # indices numericos de las locaciones
+cust = list(range(num_cust)) # indices numericos de los clientes
 cap = [] #capacidad
 fc = [] #costo
 dem = [] #demanda
 vc = [] #costo 
 
-capacidad_ab = 8000
+"""
+Debido a que en capa.txt, capb.txt y capc.txt las capacidades estan especificadas como "capacity",
+se buscó información en el paper original para saber cuáles son las capacidades de los almacenes.
+Según el paper, las capacidades son 8000, 10000, 12000 y 14000.
+Para este caso, asumiremos que cada 25 almacenes seguidos les corresponde cada capacidad:
+[1-25]: 8000
+[26-50]: 10000
+[51-75]: 12000
+[76-100]: 14000
+"""
+capacidad_ab = 8000     # Capacidad incial de los archivos capa.txt, capb.txt y capc.txt
 
+# Extraccion de datos del cliente
 for i in loc:
     line = f.readline()
     data = line.split()
 
+    # Solo se utiliza cuando se esta trabajando con capa.txt, capb.txt o capc.txt
     if i%25 == 0 and i != 0:
         capacidad_ab = capacidad_ab + 2000
 
-    if archivo == r"instancias\capa.txt" or archivo == r"instancias\capb.txt":
+    if archivo == r"instancias\capa.txt" or archivo == r"instancias\capb.txt" or archivo == r"instancias\capc.txt":
         cap.append(capacidad_ab)
     else:
+        # En caso de no ser capa.txt, capb.txt y capc.txt, se consideran las capacidades del archivo
         cap.append(int(data[0]))
 
     fc.append(float(data[1]))
@@ -217,13 +228,10 @@ print("Resultado final:",str(BestBinary.tolist()))
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
 
+#Especificar ruta del directorio de AMPL:
 rutaAMPL = r'D:\ProgramasWindows\ampl_mswin64'
-#rutaAMPL = r'C:\Users\vicen\Desktop\10 Semestre\IOA\ampl_mswin64'
 
 ampl = AMPL(Environment(rutaAMPL))
-
-#model_directory = argv[2] if len(argv) == 3 else os.path.join("..", "IOA-CFLP-main")
-model_directory = os.getcwd()
 ampl.read(r"1_CFLP_model.mod")
 
 #creacion del archivo.dat
@@ -271,16 +279,13 @@ with open(file,'w') as salida:
 
 #pass data to ampl
 ampl.read_data(file)
+
 # Solve the model
 ampl.solve()
 
 print()
+
 # Print out the result
 print(
     "Objective function value: {}".format(ampl.get_objective("Total_Cost").value())
 )
-
-# Get the values of the variable Buy in a dataframe
-#results = ampl.get_variable("y").get_values()
-# Print
-#print(results)
