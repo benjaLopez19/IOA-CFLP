@@ -227,26 +227,42 @@ Falta
 
 
 df_costoFac = pd.DataFrame(
-        list(params["costoFac"])
+        list(params["costoFac"]),
+        columns=["FC"]
     )
 adf_costoFac = DataFrame.from_pandas(df_costoFac)
+print(adf_costoFac)
 
 df_capacidades = pd.DataFrame(
-        list(params["capacidades"])
+        list(params["capacidades"]),
+        columns=["ICap"]
     )
 adf_capacidades = DataFrame.from_pandas(df_capacidades)
 
 df_demanda = pd.DataFrame(
-        list(params["demanda"])
+        list(params["demanda"]),
+        columns=["dem"]
     )
+
 adf_demanda = DataFrame.from_pandas(df_demanda)
 
 df_costoCliente = pd.DataFrame(
-        list(params["costoCliente"])
+        list(params["costoCliente"]),
     )
 
-adf_costoCliente = DataFrame.from_pandas(df_costoCliente)
+i=0
+while (i<0):
+    df_new = df_costoCliente.rename(columns={i: 'TF'})
+    i = i + 1
 
+print(df_new)
+
+
+
+
+
+adf_costoCliente = DataFrame.from_pandas(df_costoCliente)
+'''
 print("Costo facilities: =======================================================================")
 print(df_costoFac,"\n")
 print("Capacidades de las facilities: ========================================================================")
@@ -256,11 +272,12 @@ print(df_demanda,"\n")
 print("costo de los Clientes:================================================================================")
 print(df_costoCliente,"\n")
 print("=========================================================================================================")
+'''
 
-ampl.setValues(adf_costoFac,"FC")
-ampl.set_data(adf_capacidades,"ICap")
-ampl.set_data(adf_demanda,"dem")
-ampl.set_data(adf_costoCliente,"TC")
+ampl.set_data(adf_costoFac)
+ampl.set_data(adf_capacidades)
+ampl.set_data(adf_demanda)
+ampl.set_data(adf_costoCliente)
 
 #ampl.set_data(cap, "capacidad")
 

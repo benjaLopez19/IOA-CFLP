@@ -6,7 +6,7 @@ import os
 
 def main(argc, argv):
     # You can install amplpy with "python -m pip install amplpy"
-    from amplpy import AMPL, DataFrame
+    from amplpy import AMPL, DataFrame, Environment
 
     os.chdir(os.path.dirname(__file__) or os.curdir)
 
@@ -23,6 +23,7 @@ def main(argc, argv):
     df1.add_row("CAL", 16000, 24000)
     df1.add_row("NA", 0.0, 50000)
 
+
     # Create second dataframe (for data indexed over FOOD)
     # Add column by column
     df2 = DataFrame("FOOD")
@@ -34,6 +35,9 @@ def main(argc, argv):
     df2.add_column("f_max", contents)
     costs = [3.19, 2.59, 2.29, 2.89, 1.89, 1.99, 1.99, 2.49]
     df2.add_column("cost", costs)
+
+    print(df2)
+
 
     # Create third dataframe, to assign data to the AMPL entity
     # param amt{NUTR, FOOD};
@@ -49,6 +53,7 @@ def main(argc, argv):
             i += 1
     df3.set_column("NUTR", nutr_with_multiplicity)
     df3.set_column("FOOD", food_with_multiplicity)
+
 
     # Populate with all these values
     values = [
@@ -104,14 +109,12 @@ def main(argc, argv):
     df3.add_column("amt", values)
 
     # Create an AMPL instance
-    ampl = AMPL()
+    ampl = AMPL(Environment(r'C:\Users\vicen\Desktop\10 Semestre\IOA\ampl_mswin64'))
 
     if argc > 1:
         ampl.set_option("solver", argv[1])
 
-    # Read the model file
-    model_directory = argv[2] if argc == 3 else os.path.join("..", "models")
-    ampl.read(os.path.join(model_directory, "diet/diet.mod"))
+    ampl.read(r"diet.mod")
 
     # Assign data to NUTR, n_min and n_max
     ampl.set_data(df1, "NUTR")
