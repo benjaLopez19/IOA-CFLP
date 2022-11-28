@@ -2,16 +2,19 @@ import random
 import math
 import numpy as np
 import time
-from amplpy import AMPL, DataFrame, Environment
+from amplpy import AMPL, Environment
 from sys import *
 import os
-import pandas as pd
 
 resultado = open("resultados.txt", "w")
 
 #___________________LECTURA____________________________
+#archivo = r"instancias\cap131.txt"
+archivo = r"instancias\capa.txt"
 
-f = open(r"instancias\cap131.txt", "r")
+f = open(archivo, "r")
+
+print(argv[0])
 
 line = f.readline() 
 data = line.split()
@@ -23,10 +26,21 @@ cap = [] #capacidad
 fc = [] #costo
 dem = [] #demanda
 vc = [] #costo 
+
+capacidad_ab = 8000
+
 for i in loc:
-    line = f.readline() 
+    line = f.readline()
     data = line.split()
-    cap.append(int(data[0]))
+
+    if i%25 == 0 and i != 0:
+        capacidad_ab = capacidad_ab + 2000
+
+    if archivo == r"instancias\capa.txt" or archivo == r"instancias\capb.txt":
+        cap.append(capacidad_ab)
+    else:
+        cap.append(int(data[0]))
+
     fc.append(float(data[1]))
 for i in cust:
     line = f.readline()
@@ -203,18 +217,20 @@ print("Resultado final:",str(BestBinary.tolist()))
 #instancia de ampl
 #REQUIERE SER CAMBIADO PARA ESTA INSTANCIA, COMO TAMBIE MODIFICAR EL .MOD PARA ACEPTAR EL VECTOR DE FÁBRICAS COMO PARÁMETRO
 
-ampl = AMPL(Environment(r'C:\Users\vicen\Desktop\10 Semestre\IOA\ampl_mswin64'))
+rutaAMPL = r'D:\ProgramasWindows\ampl_mswin64'
+#rutaAMPL = r'C:\Users\vicen\Desktop\10 Semestre\IOA\ampl_mswin64'
+
+ampl = AMPL(Environment(rutaAMPL))
 
 #model_directory = argv[2] if len(argv) == 3 else os.path.join("..", "IOA-CFLP-main")
 model_directory = os.getcwd()
 ampl.read(r"1_CFLP_model.mod")
 
 #creacion del archivo.dat
-
 file = "1_CFLP_data.dat"
 with open(file,'w') as salida:
-    salida.write("param cli := "+str(params["num_cust"])+';'+"\n") #fila de clientes
     salida.write("param loc := "+str(params["num_loc"])+';'+'\n') #fila de localidades
+    salida.write("param cli := "+str(params["num_cust"])+';'+"\n") #fila de clientes
 
     salida.write("param facilities := ")
     for i in range(len(BestBinary)): #fila costo facilities
@@ -241,102 +257,17 @@ with open(file,'w') as salida:
     salida.write(";"+'\n')
 
     salida.write("param TC :")
-    for i in range(len(params["costoCliente"])): # primera linea con las columnas del 
+    for i in range(num_loc): # primera linea con las columnas del 
         salida.write(" "+str(i+1)+" ")
     salida.write(":=")    
     salida.write("\n")
-    for i in range(len(params["costoCliente"])):
+    for i in range(num_cust):
         salida.write(str(i+1)+" ")
-        for j in range(len(params["costoCliente"])):
+        for j in range(num_loc):
             salida.write(str(params["costoCliente"][i][j])+" ")
         salida.write("\n")
-    salida.write(";")
-    
+    salida.write("\n")
 
-
-
-"""params["num_cust"] = num_cust
-params["num_loc"] = num_loc
-params["costoFac"] = fc
-params["capacidades"] = cap
-params["demanda"] = dem
-params["costoCliente"] = vc"""
-
-print("Creando DataFrames...")
-
-"""
-Falta
-1. introducir dataframes (params)
-2. identificar estructura capa y capb
-"""
-
-"""
-
-df_costoFac = DataFrame("loc","FC")
-for i,e in enumerate(params["costoFac"]):
-    df_costoFac.add_row(i,e)
-
-print(df_costoFac)
-
-
-df_capacidades  = DataFrame("loc","ICap")
-for i,e in enumerate(params["capacidades"]):
-    df_capacidades.add_row(i,e)
-
-print(df_capacidades)
-
-df_demanda = DataFrame("cli","dem")
-for i,e in enumerate(params["demanda"]):
-    df_demanda.add_row(i,e)
-
-print(df_demanda)
-
-
-index = np.arange(0,len(params["costoCliente"])*len(params["costoCliente"]))
-index = index.tolist()
-
-df_costoCliente = DataFrame("index")
-df_costoCliente.set_column("index",index)
-df_costoCliente.add_column("cli")
-df_costoCliente.add_column("loc")
-df_costoCliente.add_column("TC")
-
-cli = []
-loc = []
-TC = []
-for i in range(len(params["costoCliente"])):
-    for j in range(len(params["costoCliente"])):
-        cli.append(i)
-        loc.append(j)
-        TC.append(params["costoCliente"][i][j])
-
-df_costoCliente.set_column("cli",cli)
-df_costoCliente.set_column("loc",loc)
-df_costoCliente.set_column("TC",TC)
-print(df_costoCliente)
-
-
-
-
-'''
-print("Costo facilities: =======================================================================")
-print(df_costoFac,"\n")
-print("Capacidades de las facilities: ========================================================================")
-print(df_capacidades,"\n")
-print("Demanda de Clientes:=====================================================================================")
-print(df_demanda,"\n")
-print("costo de los Clientes:================================================================================")
-print(df_costoCliente,"\n")
-print("=========================================================================================================")
-'''
-"""
-
-#ampl.set_data(df_costoFac)
-#ampl.set_data(df_capacidades)
-#ampl.set_data(df_demanda)
-#ampl.set_data(df_costoCliente)
-
-#ampl.set_data(cap, "capacidad")
 
 #pass data to ampl
 ampl.read_data(file)
